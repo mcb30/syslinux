@@ -15,9 +15,7 @@ PXELINUX is a Syslinux derivative, for booting Linux off a network
 server, using a network ROM conforming to the Intel PXE (Pre-Execution
 Environment) specification.  PXELINUX is *not* a program that is
 intended to be flashed or burned into a PROM on the network card; if
-you want that, check out Etherboot (http://www.etherboot.org/).
-Etherboot 5.4 or later can also be used to create a PXE-compliant boot
-PROM for many network cards.
+you want that, check out iPXE (http://ipxe.org/).
 
 
     ++++ HOW TO CONFIGURE PXELINUX ++++
@@ -99,16 +97,16 @@ boot, if you have such a setup.  MTFTP server setup is beyond the
 scope of this document.
 
 
-    ++++ gPXE-ENHANCED VARIANTS ++++
+    ++++ iPXE-ENHANCED VARIANTS ++++
 
-gPXE can be used to enhance PXELINUX's functionality to also include
+iPXE can be used to enhance PXELINUX's functionality to also include
 HTTP transfers, greatly increasing load speed and allowing for standard
 HTTP scripts to present PXELINUX's configuration file.  pxelinux.0 is
-the plain variant.  gpxelinux.0 (included as of 3.70) is gPXE's
-undionly.kkpxe, pxelinux.0 and a script to run pxelinux.0.  gpxelinuxk.0
-(included as of 4.04) is gPXE's undionly.kpxe, pxelinux.0 and a script
-to run pxelinux.0.  gpxelinuxk.0 should only be used with systems that
-are incompatible with gpxelinux.0 as it prevents certain functionality
+the plain variant.  ipxelinux.0 (included as of 3.70) is iPXE's
+undionly.kkkpxe, pxelinux.0 and a script to run pxelinux.0.  ipxelinuxk.0
+(included as of 4.04) is iPXE's undionly.kpxe, pxelinux.0 and a script
+to run pxelinux.0.  ipxelinuxk.0 should only be used with systems that
+are incompatible with ipxelinux.0 as it prevents certain functionality
 from working (LOCALBOOT with a type not equal to -1) and is incompatible
 with certain hardware, PXE stacks and network setups.
 
@@ -397,25 +395,21 @@ probably don't need it.)
     ++++ PROBLEMS WITH YOUR PXE STACK ++++
 
 There are a number of extremely broken PXE stacks in the field.  The
-gPXE project (formerly known as Etherboot) provides an open-source PXE
-stack that works with a number of cards, and which can be loaded from
-a CD-ROM, USB key, or floppy if desired.
+iPXE project (formerly known as gPXE, formerly known as Etherboot)
+provides an open-source PXE stack that works with a number of cards,
+and which can be loaded from a CD-ROM, USB key, or floppy if desired.
 
-Information on gPXE is available from:
+Information on iPXE is available from:
 
-	http://www.etherboot.org/
-
-... and ready-to-use ROM or disk images from:
-
-	http://www.rom-o-matic.net/
+	http://ipxe.org/
 
 Some cards, like may systems with the SiS 900, has a PXE stack which
 works just barely well enough to load a single file, but doesn't
 handle the more advanced items required by PXELINUX.  If so, it is
-possible to use the built-in PXE stack to load gPXE, which can then
+possible to use the built-in PXE stack to load iPXE, which can then
 load PXELINUX.  See:
 
-	http://www.etherboot.org/wiki/pxechaining
+	http://ipxe.org/howto/chainloading
 
 
     ++++ CURRENTLY KNOWN PROBLEMS ++++

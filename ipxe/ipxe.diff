@@ -1,0 +1,46 @@
+diff --git a/ipxe/src/config/general.h b/ipxe/src/config/general.h
+index 9eb8865..6847e06 100644
+--- a/ipxe/src/config/general.h
++++ b/ipxe/src/config/general.h
+@@ -56,8 +56,8 @@ FILE_LICENCE ( GPL2_OR_LATER );
+ 
+ #define	DOWNLOAD_PROTO_TFTP	/* Trivial File Transfer Protocol */
+ #define	DOWNLOAD_PROTO_HTTP	/* Hypertext Transfer Protocol */
+-#undef	DOWNLOAD_PROTO_HTTPS	/* Secure Hypertext Transfer Protocol */
+-#undef	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
++#define	DOWNLOAD_PROTO_HTTPS	/* Secure Hypertext Transfer Protocol */
++#define	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
+ #undef	DOWNLOAD_PROTO_TFTM	/* Multicast Trivial File Transfer Protocol */
+ #undef	DOWNLOAD_PROTO_SLAM	/* Scalable Local Area Multicast */
+ 
+diff --git a/ipxe/src/core/malloc.c b/ipxe/src/core/malloc.c
+index d694f55..f87ba61 100644
+--- a/ipxe/src/core/malloc.c
++++ b/ipxe/src/core/malloc.c
+@@ -91,9 +91,9 @@ size_t freemem;
+ /**
+  * Heap size
+  *
+- * Currently fixed at 128kB.
++ * Currently fixed at 512kB.
+  */
+-#define HEAP_SIZE ( 128 * 1024 )
++#define HEAP_SIZE ( 512 * 1024 )
+ 
+ /** The heap itself */
+ static char heap[HEAP_SIZE] __attribute__ (( aligned ( __alignof__(void *) )));
+diff --git a/ipxe/src/include/ipxe/tcp.h b/ipxe/src/include/ipxe/tcp.h
+index 197712b..bfaae3d 100644
+--- a/ipxe/src/include/ipxe/tcp.h
++++ b/ipxe/src/include/ipxe/tcp.h
+@@ -281,8 +281,8 @@ struct tcp_options {
+  * actually use 65536, we use a window size of (65536-4) to ensure
+  * that payloads remain dword-aligned.
+  */
+-//#define TCP_MAX_WINDOW_SIZE	( 65536 - 4 )
+-#define TCP_MAX_WINDOW_SIZE	8192
++#define TCP_MAX_WINDOW_SIZE	( 65536 - 4 )
++//#define TCP_MAX_WINDOW_SIZE	8192
+ 
+ /**
+  * Path MTU

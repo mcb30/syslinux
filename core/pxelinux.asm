@@ -22,8 +22,8 @@
 %include "head.inc"
 %include "pxe.inc"
 
-; gPXE extensions support
-%define GPXE	1
+; iPXE extensions support
+%define IPXE	1
 
 ;
 ; Some semi-configurable constants... change on your own risk.
@@ -368,7 +368,7 @@ pxenv:
 		; We may be removing ourselves from memory
 		cmp bx,0073h		; PXENV_RESTART_TFTP
 		jz .disable_timer
-		cmp bx,00E5h		; gPXE PXENV_FILE_EXEC
+		cmp bx,00E5h		; iPXE PXENV_FILE_EXEC
 		jnz .store_stack
 
 .disable_timer:
@@ -441,18 +441,18 @@ pxe_int1a:
 		ret
 
 ;
-; Special unload for gPXE: this switches the InitStack from
-; gPXE to the ROM PXE stack.
+; Special unload for iPXE: this switches the InitStack from
+; iPXE to the ROM PXE stack.
 ;
-%if GPXE
-		global gpxe_unload
-gpxe_unload:
+%if IPXE
+		global ipxe_unload
+ipxe_unload:
 		mov bx,PXENV_FILE_EXIT_HOOK
 		mov di,pxe_file_exit_hook
 		call pxenv
 		jc .plain
 
-		; Now we actually need to exit back to gPXE, which will
+		; Now we actually need to exit back to iPXE, which will
 		; give control back to us on the *new* "original stack"...
 		pushfd
 		push ds
@@ -471,7 +471,7 @@ gpxe_unload:
 .resume:
 		cli
 
-		; gPXE will have a stack frame looking much like our
+		; iPXE will have a stack frame looking much like our
 		; InitStack, except it has a magic cookie at the top,
 		; and the segment registers are in reverse order.
 		pop eax
@@ -497,7 +497,7 @@ gpxe_unload:
 		alignz 4
 pxe_file_exit_hook:
 .status:	dw 0
-.offset:	dw gpxe_unload.resume
+.offset:	dw ipxe_unload.resume
 .seg:		dw 0
 %endif
 

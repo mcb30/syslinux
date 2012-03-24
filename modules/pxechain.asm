@@ -9,7 +9,7 @@
 ;  chaining support by arranging for the server address and boot filename
 ;  reported by the PXE stack to be those from which the new NBP was
 ;  loaded, allowing PXELINUX to be used to select from multiple NBP's,
-;  such as gPXE, another PXELINUX(*), Windows RIS, and so on.
+;  such as iPXE, another PXELINUX(*), Windows RIS, and so on.
 ;
 ;  (*) This seems unnecessary at first, but it is very helpful when
 ;  selecting from among self-contained network boot images.

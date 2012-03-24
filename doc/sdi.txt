@@ -5,7 +5,7 @@ Syslinux supports SDI files ( *.sdi ).
 
 Features:
  * Support for gzipped SDI images
- * When used with gpxelinux.0, images can be downloaded by HTTP or FTP,
+ * When used with ipxelinux.0, images can be downloaded by HTTP or FTP,
    leading to fastest boot times.
 
 "System Deployment Image" is a file format created by Microsoft and mostly used

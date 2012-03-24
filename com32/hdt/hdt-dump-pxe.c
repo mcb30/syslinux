@@ -28,7 +28,7 @@
 
 #include "hdt-common.h"
 #include "hdt-dump.h"
-#include <sys/gpxe.h>
+#include <sys/ipxe.h>
 #include <netinet/in.h>
 
 void dump_pxe(struct s_hardware *hardware, ZZJSON_CONFIG *config, ZZJSON **item) {
@@ -73,7 +73,7 @@ void dump_pxe(struct s_hardware *hardware, ZZJSON_CONFIG *config, ZZJSON **item)
 		add_s("pxe.relay_agent_ip",inet_ntoa(in));
 		memcpy(&in, hardware->pxe.ip_addr, sizeof in);
 		add_s("pxe.ipaddr",inet_ntoa(in));
-		add_b("gpxe_detected",is_gpxe());
+		add_b("ipxe_detected",is_ipxe());
 	}
 	FLUSH_OBJECT;
 	to_cpio("pxe");
