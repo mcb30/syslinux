@@ -42,7 +42,7 @@ BTARGET  = version.gen version.h version.mk
 BOBJECTS = $(BTARGET) \
 	mbr/*.bin \
 	core/pxelinux.0 core/isolinux.bin core/isolinux-debug.bin \
-	gpxe/gpxelinux.0 dos/syslinux.com \
+	ipxe/ipxelinux.0 dos/syslinux.com \
 	win32/syslinux.exe win64/syslinux64.exe \
 	dosutil/*.com dosutil/*.sys \
 	$(MODULES)
@@ -53,7 +53,7 @@ BOBJECTS = $(BTARGET) \
 # Note: libinstaller is both a BSUBDIR and an ISUBDIR.  It contains
 # files that depend only on the B phase, but may have to be regenerated
 # for "make installer".
-BSUBDIRS = codepage com32 lzo core memdisk modules mbr memdump gpxe sample \
+BSUBDIRS = codepage com32 lzo core memdisk modules mbr memdump ipxe sample \
 	   diag libinstaller dos win32 win64 dosutil
 ITARGET  =
 IOBJECTS = $(ITARGET) \
@@ -66,7 +66,7 @@ INSTALL_BIN   =	mtools/syslinux
 # Things to install in /sbin
 INSTALL_SBIN  = extlinux/extlinux
 # Things to install in /usr/lib/syslinux
-INSTALL_AUX   =	core/pxelinux.0 gpxe/gpxelinux.0 gpxe/gpxelinuxk.0 \
+INSTALL_AUX   =	core/pxelinux.0 ipxe/ipxelinux.0 ipxe/ipxelinuxk.0 \
 		core/isolinux.bin core/isolinux-debug.bin \
 		dos/syslinux.com \
 		mbr/*.bin $(MODULES)
@@ -81,7 +81,7 @@ INSTALLSUBDIRS = com32 utils dosutil
 EXTBOOTINSTALL = $(MODULES)
 
 # Things to install in /tftpboot
-NETINSTALLABLE = core/pxelinux.0 gpxe/gpxelinux.0 \
+NETINSTALLABLE = core/pxelinux.0 ipxe/ipxelinux.0 \
 		 $(MODULES)
 
 all:

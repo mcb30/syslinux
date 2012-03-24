@@ -7,7 +7,7 @@
 #include <sys/cpu.h>
 #include "pxe.h"
 
-#define GPXE 1
+#define IPXE 1
 
 static uint16_t real_base_mem;	   /* Amount of DOS memory after freeing */
 
@@ -24,8 +24,8 @@ char boot_file[256];		   /* From DHCP */
 char path_prefix[256];		   /* From DHCP */
 char dot_quad_buf[16];
 
-static bool has_gpxe;
-static uint32_t gpxe_funcs;
+static bool has_ipxe;
+static uint32_t ipxe_funcs;
 bool have_uuid = false;
 
 /* Common receive buffer */
@@ -82,8 +82,8 @@ static void free_socket(struct inode *inode)
     free_inode(inode);
 }
 
-#if GPXE
-static void gpxe_close_file(struct inode *inode)
+#if IPXE
+static void ipxe_close_file(struct inode *inode)
 {
     struct pxe_pvt_inode *socket = PVT(inode);
     static __lowmem struct s_PXENV_FILE_CLOSE file_close;
@@ -99,9 +99,9 @@ static void pxe_close_file(struct file *file)
     struct pxe_pvt_inode *socket = PVT(inode);
 
     if (!socket->tftp_goteof) {
-#if GPXE
+#if IPXE
 	if (socket->tftp_localport == 0xffff) {
-	    gpxe_close_file(inode);
+	    ipxe_close_file(inode);
 	} else
 #endif
 	if (socket->tftp_localport != 0) {
@@ -414,14 +414,14 @@ static enum pxe_path_type pxe_path_type(const char *str)
     }
 }
 
-#if GPXE
+#if IPXE
 
 /**
- * Get a fresh packet from a gPXE socket
+ * Get a fresh packet from a iPXE socket
  * @param: inode -> Inode pointer
  *
  */
-static void get_packet_gpxe(struct inode *inode)
+static void get_packet_ipxe(struct inode *inode)
 {
     struct pxe_pvt_inode *socket = PVT(inode);
     static __lowmem struct s_PXENV_FILE_READ file_read;
@@ -454,9 +454,9 @@ static void get_packet_gpxe(struct inode *inode)
 
     /* Got EOF, close it */
     socket->tftp_goteof = 1;
-    gpxe_close_file(inode);
+    ipxe_close_file(inode);
 }
-#endif /* GPXE */
+#endif /* IPXE */
 
 
 /*
@@ -493,9 +493,9 @@ static void fill_buffer(struct inode *inode)
     if (socket->tftp_bytesleft || socket->tftp_goteof)
         return;
 
-#if GPXE
+#if IPXE
     if (socket->tftp_localport == 0xffff) {
-        get_packet_gpxe(inode);
+        get_packet_ipxe(inode);
         return;
     }
 #endif
@@ -765,9 +765,9 @@ static void __pxe_searchdir(const char *filename, struct file *file)
 	return;			/* Allocation failure */
     socket = PVT(inode);
 
-#if GPXE
+#if IPXE
     if (path_type == PXE_URL) {
-	if (has_gpxe) {
+	if (has_ipxe) {
 	    file_open.Status        = PXENV_STATUS_BAD_FUNC;
 	    file_open.FileName      = FAR_PTR(rrq_packet_buf + 2);
 	    err = pxe_call(PXENV_FILE_OPEN, &file_open);
@@ -781,13 +781,13 @@ static void __pxe_searchdir(const char *filename, struct file *file)
 	} else {
 	    static bool already = false;
 	    if (!already) {
-		printf("URL syntax, but gPXE extensions not detected, "
+		printf("URL syntax, but iPXE extensions not detected, "
 		       "trying plain TFTP...\n");
 		already = true;
 	    }
 	}
     }
-#endif /* GPXE */
+#endif /* IPXE */
 
     if (!ip)
 	    goto done;		/* No server */
@@ -1426,9 +1426,9 @@ static int pxe_init(bool quiet)
 }
 
 /*
- * See if we have gPXE
+ * See if we have iPXE
  */
-static void gpxe_init(void)
+static void ipxe_init(void)
 {
     int err;
     static __lowmem struct s_PXENV_FILE_API_CHECK api_check;
@@ -1438,11 +1438,11 @@ static void gpxe_init(void)
 	api_check.Magic = 0x91d447b2;
 	err = pxe_call(PXENV_FILE_API_CHECK, &api_check);
 	if (!err && api_check.Magic == 0xe9c17b20)
-	    gpxe_funcs = api_check.APIMask;
+	    ipxe_funcs = api_check.APIMask;
     }
 
-    /* Necessary functions for us to use the gPXE file API */
-    has_gpxe = (~gpxe_funcs & 0x4b) == 0;
+    /* Necessary functions for us to use the iPXE file API */
+    has_ipxe = (~ipxe_funcs & 0x4b) == 0;
 }
 
 /*
@@ -1548,8 +1548,8 @@ static int pxe_fs_init(struct fs_info *fs)
     if (pxe_init(false))
 	kaboom();
 
-    /* See if we also have a gPXE stack */
-    gpxe_init();
+    /* See if we also have a iPXE stack */
+    ipxe_init();
 
     /* Network-specific initialization */
     network_init();
@@ -1644,16 +1644,16 @@ static void install_int18_hack(void)
 int reset_pxe(void)
 {
     static __lowmem struct s_PXENV_UDP_CLOSE udp_close;
-    extern void gpxe_unload(void);
+    extern void ipxe_unload(void);
     int err = 0;
 
     pxe_idle_cleanup();
 
     pxe_call(PXENV_UDP_CLOSE, &udp_close);
 
-    if (gpxe_funcs & 0x80) {
-	/* gPXE special unload implemented */
-	call16(gpxe_unload, &zero_regs, NULL);
+    if (ipxe_funcs & 0x80) {
+	/* iPXE special unload implemented */
+	call16(ipxe_unload, &zero_regs, NULL);
 
 	/* Locate the actual vendor stack... */
 	err = pxe_init(true);

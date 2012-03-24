@@ -13,7 +13,7 @@
 /*
  * sanboot.c
  *
- * Invoke the gPXE "sanboot" command, if available.
+ * Invoke the iPXE "sanboot" command, if available.
  */
 
 #include <alloca.h>
@@ -22,7 +22,7 @@
 #include <console.h>
 #include <com32.h>
 #include <string.h>
-#include <sys/gpxe.h>
+#include <sys/ipxe.h>
 
 struct segoff16 {
     uint16_t offs, seg;
@@ -76,8 +76,8 @@ int main(int argc, const char *argv[])
 	return 1;
     }
 
-    if (!is_gpxe()) {
-	printf("sanboot: gPXE API not detected\n");
+    if (!is_ipxe()) {
+	printf("sanboot: iPXE API not detected\n");
 	return 1;
     }
 

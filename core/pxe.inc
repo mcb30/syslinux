@@ -63,7 +63,7 @@
 %define PXENV_START_BASE				 0x0075
 %define PXENV_STOP_BASE					 0x0076
 
-; gPXE extensions...
+; iPXE extensions...
 %define PXENV_FILE_OPEN					 0x00e0
 %define PXENV_FILE_CLOSE				 0x00e1
 %define PXENV_FILE_SELECT				 0x00e2

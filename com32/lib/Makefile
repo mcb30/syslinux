@@ -69,7 +69,7 @@ LIBOBJS = \
 	\
 	sys/libansi.o							\
 	\
-	sys/gpxe.o							\
+	sys/ipxe.o							\
 	\
 	sys/ansicon_write.o sys/ansiserial_write.o			\
 	\
