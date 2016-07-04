@@ -679,6 +679,37 @@ udp_sendto_if_chksum(struct udp_pcb *pcb, struct pbuf *p, ip_addr_t *dst_ip,
 }
 
 /**
+ * A nastly hack featuring 'goto' statements that allocates a
+ * new UDP local port.  Based on equivalent code in tcp_new_port()
+ *
+ * @return a new (free) local UDP port number
+ */
+static u16_t
+udp_new_port(void)
+{
+  struct udp_pcb *pcb;
+#ifndef UDP_LOCAL_PORT_RANGE_START
+/* From http://www.iana.org/assignments/port-numbers:
+   "The Dynamic and/or Private Ports are those from 49152 through 65535" */
+#define UDP_LOCAL_PORT_RANGE_START  0xc000
+#define UDP_LOCAL_PORT_RANGE_END    0xffff
+#endif
+  static u16_t port = UDP_LOCAL_PORT_RANGE_START;
+
+ again:
+  if (port++ >= UDP_LOCAL_PORT_RANGE_END) {
+    port = UDP_LOCAL_PORT_RANGE_START;
+  }
+  /* Check PCB list. */
+  for(pcb = udp_pcbs; pcb != NULL; pcb = pcb->next) {
+    if (pcb->local_port == port) {
+      goto again;
+    }
+  }
+  return port;
+}
+
+/**
  * Bind an UDP PCB.
  *
  * @param pcb UDP PCB to be bound with a local address ipaddr and port.
@@ -745,31 +776,9 @@ udp_bind(struct udp_pcb *pcb, ip_addr_t *ipaddr, u16_t port)
 
   /* no port specified? */
   if (port == 0) {
-#ifndef UDP_LOCAL_PORT_RANGE_START
-/* From http://www.iana.org/assignments/port-numbers:
-   "The Dynamic and/or Private Ports are those from 49152 through 65535" */
-#define UDP_LOCAL_PORT_RANGE_START  0xc000
-#define UDP_LOCAL_PORT_RANGE_END    0xffff
-#endif
-    port = UDP_LOCAL_PORT_RANGE_START;
-    ipcb = udp_pcbs;
-    while ((ipcb != NULL) && (port != UDP_LOCAL_PORT_RANGE_END)) {
-      if (ipcb->local_port == port) {
-        /* port is already used by another udp_pcb */
-        port++;
-        /* restart scanning all udp pcbs */
-        ipcb = udp_pcbs;
-      } else {
-        /* go on with next udp pcb */
-        ipcb = ipcb->next;
-      }
-    }
-    if (ipcb != NULL) {
-      /* no more ports available in local range */
-      LWIP_DEBUGF(UDP_DEBUG, ("udp_bind: out of free UDP ports\n"));
-      return ERR_USE;
-    }
+    port = udp_new_port();
   }
+
   pcb->local_port = port;
   snmp_insert_udpidx_tree(pcb);
   /* pcb not active yet? */
