@@ -17,6 +17,7 @@ extern volatile uint8_t pxe_need_poll;
 static DECLARE_INIT_SEMAPHORE(pxe_receive_thread_sem, 0);
 static DECLARE_INIT_SEMAPHORE(pxe_poll_thread_sem, 0);
 static struct thread *pxe_thread, *poll_thread;
+static far_ptr_t old_pxe_isr;
 
 #ifndef PXE_POLL_FORCE
 #  define PXE_POLL_FORCE 0
@@ -252,7 +253,7 @@ void pxe_start_isr(void)
     pxe_irq_vector = irq;
 
     if (irq) {
-	if (!install_irq_vector(irq, pxe_isr, &pxe_irq_chain))
+	if (!install_irq_vector(irq, pxe_isr, &old_pxe_isr))
 	    irq = 0;		/* Install failed or stuck interrupt */
     }
     
@@ -290,7 +291,7 @@ int reset_pxe(void)
 	printf("PXENV_UNDI_CLOSE failed: 0x%x\n", undi_close.Status);
 
     if (pxe_irq_vector)
-	uninstall_irq_vector(pxe_irq_vector, pxe_isr, &pxe_irq_chain);
+	uninstall_irq_vector(pxe_irq_vector, pxe_isr, &old_pxe_isr);
     if (poll_thread)
 	kill_thread(poll_thread);
 

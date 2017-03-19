@@ -40,7 +40,7 @@ pxe_isr:
 		; leftover BC doesn't get control.
 		mov byte [pxe_irq_pending],1
 		inc dword [pxe_irq_count]
-
+.eoi:
 		cmp byte [pxe_irq_vector], 8
 		mov al,0x20		; Non-specific EOI
 		jb .pri_pic
@@ -66,20 +66,15 @@ pxe_isr:
 		dec word [pxeirq_deadman]
 		jz .timeout
 
-.chain:
-		pop gs
-		pop fs
-		pop es
-		pop ds
-		popa
-		jmp 0:0
-		global pxe_irq_chain
-pxe_irq_chain	equ $-4
+		; Even though it isn't ours, we still need to send the
+		; EOI ourselves, since chaining to the original
+		; handler is too risky.
+		jmp .eoi
 
 .reset_timeout:
 		mov [pxeirq_last],ax
 		mov word [pxeirq_deadman],PXEIRQ_MAX
-		jmp .chain
+		jmp .eoi
 
 		; Too many spurious interrupts, shut off the interrupts
 		; and go to polling mode
